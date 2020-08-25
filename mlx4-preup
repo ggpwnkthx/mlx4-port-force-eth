@@ -1,0 +1,19 @@
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:          mlx4-preup
+# Required-Start:    $local_fs $syslog
+# Required-Stop:     $local_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts mlx4-preup
+# Description:       starts mlx4-preup using start-stop-daemon
+### END INIT INFO
+
+VPIs=($(lspci | grep MT27500 | awk '{print $1}'))
+for i in ${VPIs[@]}; do
+    ports=($(ls /sys/bus/pci/devices/0000\:$(echo $i | sed 's/\:/\\:/g')/mlx4_port* | grep -v _mtu))
+    for p in ${ports[@]}; do
+        echo eth > $p
+    done
+done
+exit 0
